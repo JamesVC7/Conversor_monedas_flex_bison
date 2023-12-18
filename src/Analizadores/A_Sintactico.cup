@@ -1,0 +1,100 @@
+/*--------------- 1ra Area: importaciones, paquetes -----------------------*/
+package Analizadores;
+import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+
+//Codigo para el parser,variables, metodos
+parser code
+{:
+    public String resultado="";
+    public static LinkedList<TError> TablaES = new LinkedList<TError>(); 
+
+    //Metodo al que se llama automaticamente ante algun error sintactico
+    public void syntax_error(Symbol s)
+    {        
+        String lexema = s.value.toString();
+        int fila = s.right;
+        int columna = s.left;
+        
+        System.out.println("!!!!!!! Error Sintactico Recuperado !!!!!!!");
+        System.out.println("\t\tLexema: "+lexema);
+        System.out.println("\t\tFila: "+fila);
+        System.out.println("\t\tColumna: "+columna);
+
+        TError datos = new TError(lexema,fila,columna,"Error Sintactico","Caracter no esperado");
+        TablaES.add(datos);
+        
+    }
+
+    //Metodo al que se llama en el momento en que ya no es posible una recuperacion de errores
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception
+    {        
+        String lexema = s.value.toString();
+        int fila = s.right;
+        int columna = s.left;
+        
+        System.out.println("!!!!!!! Error Sintactico, Panic Mode !!!!!!! ");
+        System.out.println("\t\tLexema: "+lexema);
+        System.out.println("\t\tFila: "+fila);
+        System.out.println("\t\tColumna: "+columna);
+
+        TError datos = new TError(lexema,fila,columna,"Error Sintactico","Caracter no esperado");
+        TablaES.add(datos);
+     
+    }
+:}
+
+/*--------------- 2da Area: Declaraciones -----------------------*/
+//declaracion de terminales 
+terminal sol_dolar, sol_euro, sol_yen, dolar_sol, dolar_euro, dolar_yen, euro_sol, euro_dolar, euro_yen, yen_sol, yen_dolar, yen_euro;
+terminal String num;
+
+//declaracion de no terminales
+non terminal String INICIO,E;
+
+// precedencia de menor a mayor 
+precedence left sol_dolar, sol_euro, sol_yen, dolar_sol, dolar_euro, dolar_yen;
+precedence left euro_sol, euro_dolar, euro_yen, yen_sol, yen_dolar, yen_euro;
+
+start with INICIO;
+
+/*--------------- 3ra Area: Reglas Semanticas -----------------------*/
+INICIO::=E:a {: resultado=a; :};
+
+E::= E:a sol_dolar {: double val1= Double.parseDouble(a);
+                    double r = val1*0.26;
+                    RESULT = String.valueOf(r); :}
+    |E:a sol_euro {: double val1= Double.parseDouble(a);
+                    double r = val1*0.24;
+                    RESULT = String.valueOf(r); :}
+    |E:a sol_yen {: double val1= Double.parseDouble(a);
+                    double r = val1*39.55;
+                    RESULT = String.valueOf(r); :}
+    |E:a dolar_sol {: double val1= Double.parseDouble(a);;
+                    double r = val1*3.70;
+                    RESULT = String.valueOf(r); :}
+    |E:a dolar_euro {: double val1= Double.parseDouble(a);
+                    double r = val1*0.93;
+                    RESULT = String.valueOf(r); :}
+    |E:a dolar_yen {: double val1= Double.parseDouble(a);
+                    double r = val1*147.95;
+                    RESULT = String.valueOf(r); :}
+    |E:a euro_sol  {: double val1= Double.parseDouble(a);
+                    double r = val1*1.06;
+                    RESULT = String.valueOf(r); :}
+    |E:a euro_dolar {: double val1= Double.parseDouble(a);
+                    double r = val1*4.03;
+                    RESULT = String.valueOf(r); :}
+    |E:a euro_yen {: double val1= Double.parseDouble(a);
+                    double r = val1*161.18;
+                    RESULT = String.valueOf(r); :}
+    |E:a yen_sol {: double val1= Double.parseDouble(a);
+                    double r = val1*0.0253;
+                    RESULT = String.valueOf(r); :}
+    |E:a yen_dolar {: double val1= Double.parseDouble(a);
+                    double r = val1*0.0068;
+                    RESULT = String.valueOf(r); :}
+    |E:a yen_euro {: double val1= Double.parseDouble(a);
+                    double r = val1*0.0062;
+                    RESULT = String.valueOf(r); :}
+    |num:a {: RESULT = a; :};
